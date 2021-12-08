@@ -193,7 +193,10 @@ of (LINE-NUM LINE-STAT)), where LINE-STAT is a symbol, either
 (defun pycov--add-overlays ()
   "Add pycov overlays."
   (if pycov-coverage-file
-      (let ((data (pycov--get-data pycov-coverage-file)))
+      (let* ((coverage-file (or (and (file-name-absolute-p pycov-coverage-file)
+                                     pycov-coverage-file)
+                                (expand-file-name pycov-coverage-file)))
+             (data (pycov--get-data coverage-file)))
         (if data
             (let* ((first-visible-line (pycov--first-visible-line))
                    (max-line (+ (line-number-at-pos (point-max)) first-visible-line))
@@ -210,7 +213,7 @@ of (LINE-NUM LINE-STAT)), where LINE-STAT is a symbol, either
                 (setf (pycov-data-buffers data) (list (current-buffer)))))
           (message "No coverage data found for %s in %s."
                    (buffer-file-name)
-                   pycov-coverage-file)))
+                   coverage-file)))
     (message "Cannot decorate %s, pycov-coverage-file not set." (buffer-file-name))))
 
 (defun pycov--remove-overlays ()
@@ -225,7 +228,10 @@ of (LINE-NUM LINE-STAT)), where LINE-STAT is a symbol, either
 (defun pycov--off ()
   "Remove pycov overlays."
   (when pycov-coverage-file
-    (let* ((data (gethash pycov-coverage-file pycov-coverages))
+    (let* ((coverage-file (or (and (file-name-absolute-p pycov-coverage-file)
+                                     pycov-coverage-file)
+                                (expand-file-name pycov-coverage-file)))
+           (data (gethash coverage-file pycov-coverages))
            (buffers (and data (pycov-data-buffers data))))
       (when (and buffers (member (current-buffer) buffers))
         (setq buffers (remove (current-buffer) buffers))
