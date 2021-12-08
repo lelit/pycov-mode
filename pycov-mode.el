@@ -81,7 +81,7 @@
   "Storage of coverage data, keyed by JSON file name.")
 
 (defun pycov--load-statistics (coverage-file)
-  "Parse python-coverage statistics stored in COVERAGE-FILE.
+  "Parse coverage.py statistics stored in COVERAGE-FILE.
 
 Return a list of (FILE . LINES), with LINES being a list
 of (LINE-NUM LINE-STAT)), where LINE-STAT is a symbol, either
