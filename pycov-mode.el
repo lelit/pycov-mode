@@ -63,6 +63,7 @@
 (put 'pycov-coverage-file 'safe-local-variable 'stringp)
 
 (cl-defstruct pycov-data
+  "A structure containing information related to a particular coverage file."
   (mtime
    nil
    :documentation "The timestamp of the file.")
