@@ -10,10 +10,15 @@ json`](https://coverage.readthedocs.io/en/6.0/cmd.html#cmd-json), and decorates 
 Python sources putting a symbol in the left fringe, showing *covered*, *uncovered* and
 *ignored* lines. Whenever the file changes, the decorations will be updated accordingly.
 
-## Table of Contents
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 
-- (Installation)[#installation]
-- (Usage)[#usage]
+**Table of Contents**
+
+- [pycov-mode](#pycov-mode)
+- [Installation](#installation)
+- [Usage](#usage)
+
+<!-- markdown-toc end -->
 
 ## Installation
 
