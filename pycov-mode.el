@@ -14,6 +14,8 @@
 (require 'json)
 (require 'seq)
 
+(eval-when-compile (require 'subr-x))   ; for if-let and when-let
+
 (defgroup pycov nil
   "The group for everything in pycov.el"
   :group 'tools)
@@ -191,31 +193,31 @@ of (LINE-NUM LINE-STAT)), where LINE-STAT is a symbol, either
           (widen)
           (1- (line-number-at-pos start)))))))
 
+(defun pycov--locate-coverage-file ()
+  "Resolve `pycov-coverage-file' to an absolute pathname."
+  (when pycov-coverage-file
+    (or (and (file-name-absolute-p pycov-coverage-file)
+             pycov-coverage-file)
+        (let ((dir (locate-dominating-file buffer-file-name pycov-coverage-file)))
+          (and dir (expand-file-name pycov-coverage-file dir))))))
+
 (defun pycov--add-overlays ()
   "Add pycov overlays."
-  (if pycov-coverage-file
-      (let* ((coverage-file (or (and (file-name-absolute-p pycov-coverage-file)
-                                     pycov-coverage-file)
-                                (expand-file-name pycov-coverage-file)))
-             (data (pycov--get-data coverage-file)))
-        (if data
-            (let* ((first-visible-line (pycov--first-visible-line))
-                   (max-line (+ (line-number-at-pos (point-max)) first-visible-line))
-                   (lines (gethash (buffer-file-name) (pycov-data-statistics data)))
-                   (buffers (pycov-data-buffers data)))
-              (dolist (line lines)
-                (when (and (> (car line) first-visible-line)
-                           (<= (car line) max-line))
-                  (pycov--make-overlay (- (car line) first-visible-line)
-                                       (pycov--get-fringe (cdr line)))))
-              (if buffers
-                  (unless (member (current-buffer) buffers)
-                    (setf (pycov-data-buffers data) (push (current-buffer) buffers)))
-                (setf (pycov-data-buffers data) (list (current-buffer)))))
-          (message "No coverage data found for %s in %s."
-                   (buffer-file-name)
-                   coverage-file)))
-    (message "Cannot decorate %s, pycov-coverage-file not set." (buffer-file-name))))
+  (if-let ((coverage-file (pycov--locate-coverage-file))
+           (data (pycov--get-data coverage-file)))
+      (let* ((first-visible-line (pycov--first-visible-line))
+             (max-line (+ (line-number-at-pos (point-max)) first-visible-line))
+             (lines (gethash (buffer-file-name) (pycov-data-statistics data)))
+             (buffers (pycov-data-buffers data)))
+        (dolist (line lines)
+          (when (and (> (car line) first-visible-line)
+                     (<= (car line) max-line))
+            (pycov--make-overlay (- (car line) first-visible-line)
+                                 (pycov--get-fringe (cdr line)))))
+        (if buffers
+            (unless (member (current-buffer) buffers)
+              (setf (pycov-data-buffers data) (push (current-buffer) buffers)))
+          (setf (pycov-data-buffers data) (list (current-buffer)))))))
 
 (defun pycov--remove-overlays ()
   "Remove all pycov overlays."
@@ -228,20 +230,16 @@ of (LINE-NUM LINE-STAT)), where LINE-STAT is a symbol, either
 
 (defun pycov--off ()
   "Remove pycov overlays."
-  (when pycov-coverage-file
-    (let* ((coverage-file (or (and (file-name-absolute-p pycov-coverage-file)
-                                     pycov-coverage-file)
-                                (expand-file-name pycov-coverage-file)))
-           (data (gethash coverage-file pycov-coverages))
-           (buffers (and data (pycov-data-buffers data))))
-      (when (and buffers (member (current-buffer) buffers))
+  (if-let ((coverage-file (pycov--locate-coverage-file))
+           (data (gethash coverage-file pycov-coverages)))
+      (when-let ((buffers (and data (pycov-data-buffers data)))
+                 ((member (current-buffer) buffers)))
         (setq buffers (remove (current-buffer) buffers))
         (setf (pycov-data-buffers data) buffers)
         (unless buffers
-          (let ((watcher (pycov-data-watcher data)))
-            (when watcher
-              (file-notify-rm-watch watcher)
-              (setf (pycov-data-watcher data) nil))))))
+          (when-let ((watcher (pycov-data-watcher data)))
+            (file-notify-rm-watch watcher)
+            (setf (pycov-data-watcher data) nil))))
     (pycov--remove-overlays)))
 
 ;;;###autoload
