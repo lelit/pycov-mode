@@ -239,8 +239,8 @@ of (LINE-NUM LINE-STAT)), where LINE-STAT is a symbol, either
         (unless buffers
           (when-let ((watcher (pycov-data-watcher data)))
             (file-notify-rm-watch watcher)
-            (setf (pycov-data-watcher data) nil))))
-    (pycov--remove-overlays)))
+            (setf (pycov-data-watcher data) nil)))))
+  (pycov--remove-overlays))
 
 ;;;###autoload
 (define-minor-mode pycov-mode
