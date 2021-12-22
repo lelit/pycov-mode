@@ -248,4 +248,14 @@ of (LINE-NUM LINE-STAT)), where LINE-STAT is a symbol, either
   :lighter " C"
   (if pycov-mode (pycov--on) (pycov--off)))
 
+(defun pycov--reload-coverage-file (symbol newval operation where)
+  "Watcher for `pycov-coverage-file'."
+  (when (and pycov-mode
+             (eq symbol 'pycov-coverage-file)
+             (eq operation 'set))
+    (with-current-buffer where
+      (let ((pycov-coverage-file newval))
+        (pycov--on)))))
+
+(add-variable-watcher 'pycov-coverage-file #'pycov--reload-coverage-file)
 (provide 'pycov-mode)
