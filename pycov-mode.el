@@ -3,8 +3,9 @@
 ;; :Created:   gio 19 mar 2020, 09:12:15
 ;; :Author:    Lele Gaifax <lele@metapensiero.it>
 ;; :License:   GNU General Public License version 3 or later
-;; :Copyright: © 2020 eTour s.r.l.
+;; :Copyright: © 2020, 2021 Lele Gaifax
 ;;
+
 
 ;; Got inspiration from https://github.com/AdamNiederer/cov
 
