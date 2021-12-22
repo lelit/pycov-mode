@@ -114,7 +114,7 @@ of (LINE-NUM LINE-STAT)), where LINE-STAT is a symbol, either
                (gethash event-file pycov-coverages))
       (message "File %s changed, reloading and refreshing..." event-file)
       (while (> retry-again 0)
-        (condition-case err
+        (condition-case nil
             (progn
               (pycov--get-data event-file)
               (setq retry-again 0))
