@@ -246,6 +246,7 @@ of (LINE-NUM LINE-STAT)), where LINE-STAT is a symbol, either
 (define-minor-mode pycov-mode
   "Minor mode that displays coverage statistics in the fringe."
   :lighter " C"
+  :interactive (python-mode)
   (if pycov-mode (pycov--on) (pycov--off)))
 
 (defun pycov--reload-coverage-file (symbol newval operation where)
